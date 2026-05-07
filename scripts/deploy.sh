@@ -15,7 +15,7 @@ for arg in "$@"; do
 done
 
 if [[ -z "$INPUT" ]]; then
-  echo "Usage: deploy.sh <html-file-or-folder> [name] [--provider=gist|surge|bashupload]" >&2
+  echo "Usage: deploy.sh <html-file-or-folder> [name] [--provider=pagedrop|gist|surge|bashupload]" >&2
   exit 2
 fi
 
@@ -205,15 +205,19 @@ for p in pagedrop gist surge bashupload; do
 done
 
 cat >&2 <<'EOF'
-No working provider found. Set up one of:
+No working provider found. PageDrop is the zero-setup default — it should "just
+work" with curl + jq/python3. If pagedrop failed, the most likely causes are:
 
-  1. gh CLI (recommended):
-       brew install gh && gh auth login
+  - You passed a folder. PageDrop only takes single HTML files; use surge instead:
+      npx surge login          # one-time email + password (no verification)
+      deploy.sh ./folder/ --provider=surge
 
-  2. surge.sh (memorable URLs):
-       npx surge --version    # first run will prompt for email + password (no verification)
+  - File >5MB. PageDrop caps HTML at 5MB. Use gist (no cap) or surge:
+      brew install gh && gh auth login
+      deploy.sh big.html --provider=gist
 
-  3. curl (always available on macOS/Linux) — bashupload fallback should "just work";
-     if it failed, you may be offline or behind a proxy.
+  - The artifact contains an obvious secret token. Remove it or pass --force-secrets.
+
+  - You're offline / pagedrop.dev is down. Add gh or surge as a fallback (above).
 EOF
 exit 1
